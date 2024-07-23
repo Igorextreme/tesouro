@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="css/login.css">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="loginSection">
+    <h1>Login</h1>
+    <h2>Digite seu E-mail e Senha</h2>
+    <input class="email" type="email" id="emailInput" placeholder="E-mail">
+    <input type="password" id="passwordInput" placeholder="Senha">
+    <button onclick="loginWithEmail()">Entrar</button>
+    <button onclick="loginWithGoogle()">Entrar com Google</button>
+    <h2>ou</h2>
+    <h2>Ou digite o Código do Host</h2>
+    <input type="text" id="hostCodeInput" placeholder="Código do Host">
+    <button onclick="loginWithHostCode()">Entrar com Código do Host</button>
+    <p id="loginMessage"></p>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js';
+    import { getDatabase, ref, set, get } from 'https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js';
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCB4R_ixloHBJSvVJEr69fPqnzEhdZjvVw",
+      authDomain: "tesouro-1777a.firebaseapp.com",
+      databaseURL: "https://tesouro-1777a-default-rtdb.firebaseio.com",
+      projectId: "tesouro-1777a",
+      storageBucket: "tesouro-1777a.appspot.com",
+      messagingSenderId: "454369768010",
+      appId: "1:454369768010:web:80b30f52686f7a8a19acb3",
+      measurementId: "G-B5NQSMHK33"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    function generateRandomCode(length = 6) {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      return result;
+    }
+
+    window.loginWithEmail = function() {
+      const email = document.getElementById('emailInput').value;
+      const password = document.getElementById('passwordInput').value;
+
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          handleUser(user);
+        })
+        .catch((error) => {
+          const errorMessage = error.message;
+          document.getElementById('loginMessage').innerText = "Erro: " + errorMessage;
+          document.getElementById('loginMessage').style.color = 'red';
+        });
+    };
+
+    window.loginWithGoogle = function() {
+      const provider = new GoogleAuthProvider();
+
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user;
+          handleUser(user);
+        })
+        .catch((error) => {
+          const errorMessage = error.message;
+          document.getElementById('loginMessage').innerText = "Erro: " + errorMessage;
+          document.getElementById('loginMessage').style.color = 'red';
+        });
+    };
+
+    window.loginWithHostCode = function() {
+      const code = document.getElementById('hostCodeInput').value;
+      const dbRef = ref(db, 'users');
+
+      get(dbRef).then((snapshot) => {
+        let validCode = false;
+        snapshot.forEach((userSnapshot) => {
+          const userData = userSnapshot.val();
+          if (userData.hostCode === code) {
+            validCode = true;
+            localStorage.setItem('hostCode', code); // Armazena o código do host no localStorage
+            window.location.href = 'user.html'; // Redireciona para a página se o código for válido
+          }
+        });
+        if (!validCode) {
+          document.getElementById('loginMessage').innerText = "Código do host inválido.";
+          document.getElementById('loginMessage').style.color = 'red';
+        }
+      }).catch((error) => {
+        document.getElementById('loginMessage').innerText = "Erro ao verificar código do host: " + error.message;
+        document.getElementById('loginMessage').style.color = 'red';
+      });
+    };
+
+    function handleUser(user) {
+      const userId = user.uid; // Usando o ID do usuário do Firebase Auth
+      const userRef = ref(db, `users/${userId}`);
+
+      get(userRef).then((snapshot) => {
+        if (!snapshot.exists()) {
+          const code = generateRandomCode();
+          set(userRef, {
+            email: user.email,
+            enigmas: {},
+            hostCode: code // Adiciona o código ao usuário
+          })
+          .then(() => {
+            alert("Seu código de acesso é: " + code);
+            localStorage.setItem('hostCode', code); // Armazena o código do host no localStorage
+            window.location.href = 'addEnigma.html';
+          })
+          .catch((error) => {
+            console.error("Erro ao criar entrada no banco de dados para o usuário: ", error);
+          });
+        } else {
+          // Usuário já existe, apenas redireciona para a página
+          alert("Seu código de acesso é: " + snapshot.val().hostCode);
+          localStorage.setItem('hostCode', snapshot.val().hostCode); // Armazena o código do host no localStorage
+          window.location.href = 'addEnigma.html';
+        }
+      }).catch((error) => {
+        console.error("Erro ao acessar dados do usuário: ", error);
+      });
+    }
+  </script>
+</body>
+</html>

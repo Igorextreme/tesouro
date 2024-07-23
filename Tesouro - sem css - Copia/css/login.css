@@ -1,0 +1,66 @@
+/* login.css */
+body {
+    font-family: 'Press Start 2P', cursive;
+    background-color: #000;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+h1, h2 {
+    color: #fff;
+    text-align: center;
+}
+
+#loginSection {
+    background-color: #111;
+    padding: 20px;
+    border: 4px solid #ffcc00;
+    border-radius: 8px;
+    box-shadow: 0 0 20px rgba(255, 255, 0, 0.5);
+    max-width: 400px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input[type="password"] {
+    padding: 10px;
+    border: 2px solid #ffcc00;
+    border-radius: 4px;
+    width: calc(100% - 24px); /* Ajustado para considerar padding e border */
+    box-sizing: border-box;
+    background-color: #222;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    margin-bottom: 10px; /* Espaçamento entre os campos de texto */
+}
+
+button {
+    background-color: #ffcc00;
+    color: #000;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+    font-family: 'Press Start 2P', cursive;
+    width: calc(100% - 22px); /* Ajustado para considerar padding e border */
+    margin: 10px 0; /* Espaçamento acima e abaixo do botão */
+    box-sizing: border-box;
+}
+
+button:hover {
+    background-color: #ffaa00;
+}
+
+#loginMessage {
+    font-weight: bold;
+    margin-top: 10px;
+    color: red;
+    text-align: center;
+}

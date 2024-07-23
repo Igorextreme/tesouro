@@ -1,0 +1,12 @@
+{
+    "name": "tesouro",
+    "version": "1.0.0",
+    "description": "Aplicativo de caça ao tesouro com Firebase",
+    "main": "js/script.js",
+    "scripts": {
+        "start": "node js/script.js"
+    },
+    "dependencies": {
+        "firebase": "^9.23.0"
+    }
+}
