@@ -21,6 +21,7 @@ h1, h2 {
 
 #loginSection,
 #container {
+    position: relative; /* Adicionado para garantir o posicionamento absoluto dos elementos filhos */
     background-color: #111;
     padding: 20px;
     border: 4px solid #ffcc00;
@@ -127,12 +128,10 @@ button:hover {
 .pixel-button:hover {
     box-shadow: 0 0 0 2px #ffaa00, 0 0 20px rgba(255, 170, 0, 0.5);
 }
-#solveEnigmaScreen {
-    position: relative; /* Necessário para o posicionamento absoluto do filho */
-}
 
+/* Key Counter */
 .key-counter {
-    position: absolute;
+    position: fixed; /* Fixar no canto superior direito da tela */
     top: 10px;
     right: 10px;
     background-color: #222;
@@ -141,4 +140,5 @@ button:hover {
     border-radius: 4px;
     font-family: 'Press Start 2P', cursive;
     font-size: 1em;
+    z-index: 1000; /* Garante que o contador fique sobre outros elementos */
 }
