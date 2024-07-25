@@ -118,15 +118,16 @@
 
         /* Adiciona estilo para o mostrador de chaves no canto superior direito */
         #keyCounter {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #222;
-            color: #ffcc00;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 1em;
+            position: fixed; /* Fixar o contador na tela */
+            top: 10px; /* Distância do topo da tela */
+            right: 10px; /* Distância da borda direita da tela */
+            background-color: #222; /* Cor de fundo */
+            color: #ffcc00; /* Cor do texto */
+            padding: 5px 10px; /* Espaçamento interno */
+            border-radius: 4px; /* Bordas arredondadas */
+            font-family: 'Press Start 2P', cursive; /* Fonte do texto */
+            font-size: 1em; /* Tamanho da fonte */
+            z-index: 1000; /* Garante que o contador fique sobre outros elementos */
         }
     </style>
 </head>
