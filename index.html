@@ -191,7 +191,29 @@
             </div>
         </div>
     </div>
+  <!-- Include Firebase and App Scripts -->
+  <script type="module" src="js/firebaseconfig.js"></script>
+  <script type="module">
+      document.addEventListener('DOMContentLoaded', function() {
+          // Função para atualizar o contador de chaves
+          function updateKeyCounter(count) {
+              const keyCounter = document.getElementById('keyCounter');
+              if (keyCounter) {
+                  keyCounter.textContent = `Chaves: ${count}`;
+              }
+          }
 
+          // Exemplo de inicialização com valor de chaves
+          let currentKeyCount = 0; // Inicialmente 0 chaves
+          updateKeyCounter(currentKeyCount);
+
+          // Simulação de adicionar chaves para teste
+          setTimeout(() => {
+              currentKeyCount += 5; // Adiciona 5 chaves como exemplo
+              updateKeyCounter(currentKeyCount);
+          }, 2000);
+      });
+  </script>
     <!-- Include Firebase and App Scripts -->
     <script type="module" src="js/firebaseconfig.js"></script>
     <script type="module" src="js/script.js" defer></script>
