@@ -340,6 +340,17 @@ window.createTeam = function() {
     }
 };
 
+function closeModal() {
+    document.getElementById('treasureModal').classList.add('hidden');
+}
+
+// Função para abrir o modal (se necessário)
+function openModal() {
+    document.getElementById('treasureModal').classList.remove('hidden');
+}
+
+// Exemplo de como abrir o modal
+// openModal();
 
 
 

@@ -210,14 +210,24 @@
     }
 }</script>
         <!-- Treasure Modal -->
-        <div id="treasureModal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h2>Parabéns!</h2>
-                <p>Você encontrou o tesouro!</p>
-            </div>
+      
+    <!-- Treasure Modal -->
+<div id="treasureModal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div class="modal-header">
+            <h2>🎉 Parabéns!</h2>
+        </div>
+        <div class="modal-body">
+            <img src="path/to/celebration-image.png" alt="Celebração" class="celebration-image">
+            <p>Você encontrou o tesouro!</p>
+            <p>Como prêmio, você ganhou uma surpresa incrível!</p>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal()">Fechar</button>
         </div>
     </div>
+</div>
 
     <!-- Include Firebase and App Scripts -->
     <script type="module" src="js/firebaseconfig.js"></script>
