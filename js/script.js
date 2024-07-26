@@ -151,29 +151,30 @@ window.createTeam = function() {
     const hostCode = localStorage.getItem('hostCode');
 
     if (teamName && hostCode) {
-      const dbRef = ref(db);
-      get(child(dbRef, `users`))
-        .then((snapshot) => {
-          snapshot.forEach((userSnapshot) => {
-            const userData = userSnapshot.val();
-            if (userData.hostCode === hostCode) {
-              get(child(dbRef, `users/${userSnapshot.key}/teams/${teamName}`))
-                .then((teamSnapshot) => {
-                  if (teamSnapshot.exists()) {
-                    const keys = teamSnapshot.val().keys || 0;
-                    document.getElementById('keyCount').innerText = keys;
-                  } else {
-                    document.getElementById('keyCount').innerText = '0';
-                  }
+        const dbRef = ref(db);
+        get(child(dbRef, `users`))
+            .then((snapshot) => {
+                snapshot.forEach((userSnapshot) => {
+                    const userData = userSnapshot.val();
+                    if (userData.hostCode === hostCode) {
+                        get(child(dbRef, `users/${userSnapshot.key}/teams/${teamName}`))
+                            .then((teamSnapshot) => {
+                                if (teamSnapshot.exists()) {
+                                    const keys = teamSnapshot.val().keys || 0;
+                                    document.getElementById('keyCounter').innerText = keys;
+                                } else {
+                                    document.getElementById('keyCounter').innerText = '0';
+                                }
+                            });
+                    }
                 });
-            }
-          });
-        })
-        .catch((error) => {
-          console.error("Erro ao acessar os dados das equipes: ", error.message);
-        });
+            })
+            .catch((error) => {
+                console.error("Erro ao acessar os dados das equipes: ", error.message);
+            });
     }
-  }
+}
+
 
   window.solveEnigma = function() {
     const teamName = document.getElementById('teamNameInput').value;
@@ -240,91 +241,49 @@ window.createTeam = function() {
   };
 
   window.submitAnswer = function() {
-    const teamName = localStorage.getItem('teamName'); // Recupera o nome da equipe armazenado
-    const code = document.getElementById('codeSolveInput').value;
-    const answer = document.getElementById('answerSolveInput').value;
-    const hostCode = localStorage.getItem('hostCode'); // Recupera o código do host armazenado
+    const answer = document.getElementById('answerSolveInput').value.trim().toLowerCase();
+    const correctAnswer = localStorage.getItem('currentEnigmaAnswer').trim().toLowerCase();
 
-    if (teamName && code && answer) {
-        if (hostCode) {
-            const dbRef = ref(db);
-            get(child(dbRef, `users`))
-                .then((snapshot) => {
-                    snapshot.forEach((userSnapshot) => {
-                        const userData = userSnapshot.val();
-                        if (userData.hostCode === hostCode) {
-                            get(child(dbRef, `users/${userSnapshot.key}/enigmas/${code}`))
-                                .then((enigmaSnapshot) => {
-                                    if (enigmaSnapshot.exists()) {
-                                        const enigma = enigmaSnapshot.val();
-                                        if (enigma.answer === answer) {
-                                            document.getElementById('solveEnigmaMessage').innerText = "Resposta correta! Sua equipe ganhou uma chave.";
-                                            document.getElementById('solveEnigmaMessage').style.color = 'green';
+    if (answer === correctAnswer) {
+        const teamName = localStorage.getItem('teamName');
+        const hostCode = localStorage.getItem('hostCode');
 
-                                            get(child(dbRef, `users/${userSnapshot.key}/teams/${teamName}`))
-                                                .then((teamSnapshot) => {
-                                                    if (teamSnapshot.exists()) {
-                                                        let keys = teamSnapshot.val().keys || 0;
-                                                        keys++;
-                                                        update(ref(db, `users/${userSnapshot.key}/teams/${teamName}`), { keys })
-                                                            .then(() => {
-                                                                updateKeyCounter(); // Atualiza o contador de chaves
-                                                                if (keys >= 4) {
-                                                                    // Exibe a mensagem de tesouro e reseta as chaves
-                                                                    document.getElementById('solveEnigmaMessage').innerText = "Parabéns! Sua equipe encontrou um tesouro!";
-                                                                    document.getElementById('solveEnigmaMessage').style.color = 'gold';
-                                                                    update(ref(db, `users/${userSnapshot.key}/teams/${teamName}`), { keys: 0 })
-                                                                        .then(() => {
-                                                                            console.log("Chaves resetadas com sucesso.");
-                                                                            // Opcional: Exibir um modal ou mensagem adicional para o tesouro
-                                                                        })
-                                                                        .catch((error) => {
-                                                                            console.error("Erro ao resetar chaves: ", error);
-                                                                        });
-                                                                } else {
-                                                                    // Se menos de 4 chaves, verifica se deve mostrar o modal do tesouro
-                                                                    if (keys >= 3) {
-                                                                        showTreasureModal(); // Exibe o modal do tesouro
-                                                                    }
-                                                                }
-                                                                // Remover o enigma do banco de dados
-                                                                remove(ref(db, `users/${userSnapshot.key}/enigmas/${code}`))
-                                                                    .then(() => {
-                                                                        console.log("Enigma removido com sucesso.");
-                                                                    })
-                                                                    .catch((error) => {
-                                                                        console.error("Erro ao remover enigma: ", error);
-                                                                    });
-                                                            });
-                                                    }
-                                                });
-                                        } else {
-                                            document.getElementById('solveEnigmaMessage').innerText = "Resposta incorreta. Tente novamente.";
-                                            document.getElementById('solveEnigmaMessage').style.color = 'red';
+        console.log(`Resposta correta! Atualizando contagem de chaves para a equipe: ${teamName}`);
+
+        const dbRef = ref(db);
+        get(child(dbRef, `users`))
+            .then((snapshot) => {
+                snapshot.forEach((userSnapshot) => {
+                    const userData = userSnapshot.val();
+                    if (userData.hostCode === hostCode) {
+                        const teamRef = ref(db, `users/${userSnapshot.key}/teams/${teamName}`);
+                        get(teamRef)
+                            .then((teamSnapshot) => {
+                                let keys = 0;
+                                if (teamSnapshot.exists()) {
+                                    keys = teamSnapshot.val().keys || 0;
+                                }
+                                keys++;
+                                update(teamRef, { keys })
+                                    .then(() => {
+                                        document.getElementById('solveMessage').innerText = `Resposta correta! Você agora tem ${keys} chaves.`;
+                                        updateKeyCounter();
+                                        if (keys >= 3) {
+                                            alert("Parabéns! Você encontrou o tesouro!");
                                         }
-                                    } else {
-                                        document.getElementById('solveEnigmaMessage').innerText = "Enigma não encontrado.";
-                                        document.getElementById('solveEnigmaMessage').style.color = 'red';
-                                    }
-                                })
-                                .catch((error) => {
-                                    document.getElementById('solveEnigmaMessage').innerText = "Erro ao verificar a resposta: " + error.message;
-                                    document.getElementById('solveEnigmaMessage').style.color = 'red';
-                                });
-                        }
-                    });
-                })
-                .catch((error) => {
-                    document.getElementById('solveEnigmaMessage').innerText = "Erro ao acessar os dados das equipes: " + error.message;
-                    document.getElementById('solveEnigmaMessage').style.color = 'red';
+                                    })
+                                    .catch((error) => {
+                                        console.error("Erro ao atualizar contagem de chaves: ", error.message);
+                                    });
+                            });
+                    }
                 });
-        } else {
-            document.getElementById('solveEnigmaMessage').innerText = "Código do host não encontrado. Você deve fazer login novamente.";
-            document.getElementById('solveEnigmaMessage').style.color = 'red';
-        }
+            })
+            .catch((error) => {
+                console.error("Erro ao acessar dados das equipes: ", error.message);
+            });
     } else {
-        document.getElementById('solveEnigmaMessage').innerText = "Por favor, insira o nome da equipe, o código do enigma e a resposta.";
-        document.getElementById('solveEnigmaMessage').style.color = 'red';
+        document.getElementById('solveMessage').innerText = "Resposta incorreta. Tente novamente.";
     }
 };
 

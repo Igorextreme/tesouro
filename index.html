@@ -116,7 +116,7 @@
             color: #000;
         }
 
-        /* Adiciona estilo para o mostrador de chaves no canto superior direito */
+        /* Estilo para o mostrador de chaves no canto superior direito */
         #keyCounter {
             position: fixed; /* Fixar o contador na tela */
             top: 10px; /* Distância do topo da tela */
@@ -181,7 +181,34 @@
             <button onclick="submitAnswer()" class="hidden pixel-button">Enviar Resposta</button>
             <div id="solveEnigmaMessage" class="message"></div>
         </div>
+<script>   function updateKeyCounter() {
+    const teamName = localStorage.getItem('teamName');
+    const hostCode = localStorage.getItem('hostCode');
 
+    if (teamName && hostCode) {
+        const dbRef = ref(db);
+        get(child(dbRef, `users`))
+            .then((snapshot) => {
+                snapshot.forEach((userSnapshot) => {
+                    const userData = userSnapshot.val();
+                    if (userData.hostCode === hostCode) {
+                        get(child(dbRef, `users/${userSnapshot.key}/teams/${teamName}`))
+                            .then((teamSnapshot) => {
+                                if (teamSnapshot.exists()) {
+                                    const keys = teamSnapshot.val().keys || 0;
+                                    document.getElementById('keyCounter').innerText = keys;
+                                } else {
+                                    document.getElementById('keyCounter').innerText = '0';
+                                }
+                            });
+                    }
+                });
+            })
+            .catch((error) => {
+                console.error("Erro ao acessar os dados das equipes: ", error.message);
+            });
+    }
+}</script>
         <!-- Treasure Modal -->
         <div id="treasureModal">
             <div class="modal-content">
@@ -191,31 +218,10 @@
             </div>
         </div>
     </div>
-  <!-- Include Firebase and App Scripts -->
-  <script type="module" src="js/firebaseconfig.js"></script>
-  <script type="module">
-      document.addEventListener('DOMContentLoaded', function() {
-          // Função para atualizar o contador de chaves
-          function updateKeyCounter(count) {
-              const keyCounter = document.getElementById('keyCounter');
-              if (keyCounter) {
-                  keyCounter.textContent = `Chaves: ${count}`;
-              }
-          }
 
-          // Exemplo de inicialização com valor de chaves
-          let currentKeyCount = 0; // Inicialmente 0 chaves
-          updateKeyCounter(currentKeyCount);
-
-          // Simulação de adicionar chaves para teste
-          setTimeout(() => {
-              currentKeyCount += 5; // Adiciona 5 chaves como exemplo
-              updateKeyCounter(currentKeyCount);
-          }, 2000);
-      });
-  </script>
     <!-- Include Firebase and App Scripts -->
     <script type="module" src="js/firebaseconfig.js"></script>
     <script type="module" src="js/script.js" defer></script>
+   
 </body>
 </html>
